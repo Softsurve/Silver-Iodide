@@ -1,0 +1,45 @@
+{
+  "name": "silver-iodide",
+  "version": "1.0.0",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  },
+  "description": "Silver Iodine software framework based on a filesystem like state engine.",
+  "main": "main.js",
+  "bin": {
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "install-electron": "npm install --save-dev electron",
+    "start-electron": "electron .",
+    "start-devserver": "http-server . -p 9090",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/softsurve/silver-iodine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/softsurve/silver-iodine/issues"
+  },
+  "homepage": "https://facade.softsurve.com",
+  "devDependencies": {
+  },
+  "publishConfig": {
+    "registry": "https://nexus.softsurve.com/repository/npm-private/"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
