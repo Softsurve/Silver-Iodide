@@ -1,23 +1,26 @@
-var fslist = {};
+import Command from "/core/AgI.js";
 
-fslist.appName = "fslist";
-fslist.version = "0.0.1";
-
-fslist.consoleDiv = 0;
-fslist.form = "";;
-fslist.currentLine = "";
-
-fslist.main = function(arg)
-{
-    var counter = 0;
-    
-    //parse list of available filesystems for the one we've been asked to mount
-    while(counter < vfsList.length ) { 
-        console.printf(vfsList[counter].Name+"<br>");
-        counter++;
+class fslist extends Command {
+    constructor(agiSys) {
+        super();
+        this.agi = agiSys;
+        this.appName = "fslist";
+        this.version = "0.0.1";    
+        this.consoleDiv = 0;
+        this.form = "";
+        this.currentLine = "";
     }
-};
 
-fslist.exec = fsdump.main;
+    main(arg)
+    {
+        var counter = 0;
+        
+        //parse list of available filesystems for the one we've been asked to mount
+        while(counter < vfsList.length ) { 
+            this.agi.printf(vfsList[counter].Name+"<br>");
+            counter++;
+        }
+    }
+}
 
 export default fslist;

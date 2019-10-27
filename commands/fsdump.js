@@ -1,35 +1,36 @@
-var fsdump = {};
+import Command from "/core/AgI.js";
 
-fsdump.appName = "fsdump";
-fsdump.version = "0.0.1";
-
-fsdump.consoleDiv = 0;
-fsdump.form = "<i>filename</i>";;
-fsdump.currentLine = "";
-
-fsdump.main = function(arg)
-{
+class fsdump extends Command {
+    constructor(agiSys) {
+        super();
+        this.agi = agiSys;
+        this.appName = "fsdump";
+        this.version = "0.0.1";     
+        this.consoleDiv = 0;
+        this.form = "<i>filename</i>";
+        this.currentLine = "";
+    }
+    
+    main(arg) {
         var dumpNode = 0;
         
         if(arg === "")
-            dumpNode = rootfs;
+            dumpNode = this.agi.root;
         else
-            dumpNode = agi.walk(arg[1]);
-    
-    
-    
-        console.printf(dumpNode+"<br>");
-        console.printf("Name: "+dumpNode.Name+"<br>");
-        console.printf("Type: "+dumpNode.Type+"<br>");
-        console.printf("prev: "+dumpNode.prev+"<br>");
-        console.printf("next: "+dumpNode.next+"<br>");
-        console.printf("Data: "+dumpNode.Data+"<br>");
-        console.printf("Meta: "+dumpNode.meta+"<br>");
-        console.printf("Watchers: "+dumpNode.watchers+"<br>");
-        if(arg[1] != "/")
-            console.printf("Parent: "+dumpNode.Parent.Name+"<br>");
-};
+            dumpNode = this.agi.walk(arg[1]);
 
-fsdump.exec = fsdump.main;
+        this.agi.printf(dumpNode+"<br>");
+        this.agi.printf("Name: "+dumpNode.Name+"<br>");
+        this.agi.printf("Type: "+dumpNode.Type+"<br>");
+        this.agi.printf("prev: "+dumpNode.prev+"<br>");
+        this.agi.printf("next: "+dumpNode.next+"<br>");
+        this.agi.printf("Data: "+dumpNode.Data+"<br>");
+        this.agi.printf("Meta: "+dumpNode.meta+"<br>");
+        this.agi.printf("Watchers: "+dumpNode.watchers+"<br>");
+
+        if(arg[1] != "/")
+        this.agi.printf("Parent: "+dumpNode.Parent.Name+"<br>");
+    }
+}
 
 export default fsdump;

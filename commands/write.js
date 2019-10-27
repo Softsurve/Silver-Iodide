@@ -4,12 +4,11 @@ import Types from "/core/Types.js";
 class write extends Command {
     constructor(agiSys) {
         super();
-        write.appName = "write";
-        write.version = "0.0.1";
-
-        write.consoleDiv = 0;
-        write.form = "<i>new filename</i> <i>new file contents</i>";
-        write.currentLine = "";
+        this.appName = "write";
+        this.version = "0.0.1";
+        this.consoleDiv = 0;
+        this.form = "<i>new filename</i> <i>new file contents</i>";
+        this.currentLine = "";
     }
     main(arg, line) {
         //var args = line.split(" ");
@@ -20,4 +19,5 @@ class write extends Command {
         this.agi.write(arg[1], Types.WriteFlags.CREATEDATAFILE, arg[2], 0, 0);
     }
 }
+
 export default write;

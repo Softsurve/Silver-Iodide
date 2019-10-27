@@ -1,19 +1,19 @@
 class shell {
-    constructor(ioSystem){
+    constructor(agiSys){
+        this.agi = agiSys;
         this.appName = "shell";
         this.version = "0.0.1";
-        this.consoleBanner = "AgI Console. ver"+this.consoleVersion+"<br>";
+        this.consoleBanner = "AgI Console. ver"+this.version+"<br>";
         this.consoleWelcome = "Type \"help\" for commands";    
         this.currentDirectory = "/";
         this.consoleDiv = 0;
         this.form = "";
         this.running = 0;
-        this.stdio = ioSystem;//.Stdio;
-        this.currentLine = "";//this.stdio.currentLine;
+        this.stdio = agiSys.stdio;
+        this.currentLine = "";
         this.cmdList = [];
         this.stdio.printf = this.stdio.Printf;
         this.printf = this.stdio.Printf;
-        ioSystem.Printf(this.consoleBanner+"<br>"+this.consoleWelcome+"<br>");
     }
 
     KeyDown(event) {
@@ -29,7 +29,7 @@ class shell {
         if(keyCode === 13)
         {
             this.cmd(this.currentLine);
-            this.stdio.Printf("$ ");
+            this.agi.stdio.Printf("$ ");
             this.currentLine = "";
             return;
         }
@@ -47,7 +47,7 @@ class shell {
     }
 
     cmd(line) {
-        this.stdio.Printf("<br>");
+        this.stdio.printf("<br>");
 
         var cmdParts = line.split(" ");
         
@@ -69,8 +69,8 @@ class shell {
                 {
                     if(this.cmdList[count].appName === this.cmdParts[1])
                     {
-                        this.stdio.printf(this.cmdList[count].appName+"  <br>");
-                        this.stdio.printf(this.cmdList[count].form+"<br>");
+                        this.agi.Printf(this.cmdList[count].appName+"  <br>");
+                        this.agi.Printf(this.cmdList[count].form+"<br>");
                         
                         break;
                     }
@@ -81,7 +81,7 @@ class shell {
         }
         else if(cmdParts[0] === "cls" || cmdParts[0] === "clear")
         {
-            this.stdio.ClearIO("stdOut");
+            this.agi.Flush();//stdio.clearIO("stdOut");
             return;
         }
         else
@@ -94,11 +94,11 @@ class shell {
                 {
                     this.cmdList[count].main(cmdParts,line);
                     return;
-                };
+                }
                 count++;
             }
        
-            this.stdio.printf("Command not found<br>");
+            this.agi.printf("Command not found<br>");
         }
     }
 
@@ -107,8 +107,9 @@ class shell {
     }
 
     main(args) {
+        this.agi.Printf(this.consoleBanner+"<br>"+this.consoleWelcome+"<br>");
         this.running = 1;
-        this.stdio.Printf(" $ " );
+        this.agi.Printf(" $ " );
     }
 }
 export default shell

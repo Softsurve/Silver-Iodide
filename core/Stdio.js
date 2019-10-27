@@ -10,7 +10,7 @@ class Stdio {
         this.buffer = "";
     }
 
-    printf(string) {
+    Printf(string) {
         this.buffer = this.buffer + string;
             
         if(this.consoleDiv !== 0) {
@@ -18,7 +18,7 @@ class Stdio {
         }
     }
 
-    Redraw() {
+    redraw() {
         if(this.consoleDiv !== 0) {
             this.buffer = this.buffer.slice(0, this.buffer.length -1);
             this.consoleDiv.innerHTML = this.buffer;

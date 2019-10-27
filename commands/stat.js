@@ -1,24 +1,26 @@
-var stat = {};
+import Command from "/core/AgI.js";
 
-stat.appName = "stat";
-stat.version = "0.0.1";
+class stat extends Command {
+    constructor(agiSys) {
+        super();
+        this.agi = agiSys;
+        this.appName = "stat";
+        this.version = "0.0.1";    
+        this.consoleDiv = 0;
+        this.form = "usage:<br>stat <i>path</i><br>";
+        this.currentLine = "";
+    }
 
-stat.consoleDiv = 0;
-stat.form = "usage:<br>stat <i>path</i><br>";
-stat.currentLine = "";
-
-stat.main = function(args)
-{
-    if(args == null)
+    main(args)
     {
-        printf(stat.form);
-        return;
-    };
-    
-    printf( vfs.stat(args) );
-};
-
-stat.exec = stat.main;
+        if(args == null)
+        {
+            printf(stat.form);
+            return;
+        }
+        
+        printf( vfs.stat(args) );
+    }
+}
 
 export default stat;
-

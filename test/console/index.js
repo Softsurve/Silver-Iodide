@@ -2,23 +2,27 @@ import AgI   from "/core/AgI.js";
 import Shell from "/commands/shell.js"
 import Cat   from "/commands/cat.js"
 import FsDump from "/commands/fsdump.js"
+import FsList from "/commands/fslist.js"
 import Login from "/commands/login.js"
 import Ls from "/commands/ls.js"
 import MkDir from "/commands/mkdir.js"
 import Mount from "/commands/mount.js"
 import Stat from "/commands/stat.js"
+import Unmount from "/commands/umount.js"
 import Write from "/commands/write.js"
 
 var agi = new AgI();
 var agiShell = new Shell(agi);
 
 agiShell.LoadCommand(new Cat(agi));
-agiShell.LoadCommand(FsDump);
-agiShell.LoadCommand(Login);
+agiShell.LoadCommand(new FsDump(agi));
+agiShell.LoadCommand(new FsList(agi));
+agiShell.LoadCommand(new Login(agi));
 agiShell.LoadCommand(new Ls(agi));
 agiShell.LoadCommand(new MkDir(agi));
-agiShell.LoadCommand(Mount);
-agiShell.LoadCommand(Stat);
+agiShell.LoadCommand(new Mount(agi));
+agiShell.LoadCommand(new Stat(agi));
+agiShell.LoadCommand(new Unmount(agi));
 agiShell.LoadCommand(new Write(agi));
 
 agiShell.main();

@@ -1,85 +1,85 @@
-var login = {};
+import Command from "/core/AgI.js";
 
-login.appName = "login";
-login.version = "0.0.1";
-
-login.consoleDiv = 0;
-login.form = "<i>username</i> <i>password</i> ";
-login.currentLine = "";
-
-login.init = function()
-{
-    consoleDiv = document.getElementById("cmd");
-    consoleDiv.innerHTML = "";
-    if(loginAttempt < 3)
-    {
-        stdio.printf(consoleBanner);
-        stdio.printf("Username:");
-        loginAttempt = loginAttempt + 1;
-    }
-    else
-    {
-        stdio.printf("You've struck out");
-    }
-};
-
-login.step = 0;
-login.username = "";
-login.password = "";
-
-login.input = function(keyCode)
-{
-    if(keyCode == 13)
-    {
-        stdio.buffer = stdio.buffer + "<br>";
+class login extends Command {
+    constructor(agiSys) {
+        super();
+        this.agi = agiSys;
+        this.appName = "login";
+        this.version = "0.0.1";
         
-        if(login.step === 0)
+        this.consoleDiv = 0;
+        this.form = "<i>username</i> <i>password</i> ";
+        this.currentLine = "";
+        this.step = 0;
+        this.username = "";
+        this.password = "";
+    }
+
+    login(username, password, url) {
+        this.consoleDiv = document.getElementById("cmd");
+        this.consoleDiv.innerHTML = "";
+
+        if(this.loginAttempt < 3)
         {
-            login.username = stdio.currentLine;
-            login.step++;        }
-        else if(login.step == 1)
-        {
-            stdio.printf("Password: ");
-            login.step++;
+            this.agi.stdio.printf(consoleBanner);
+            this.agi.stdio.printf("Username:");
+            this.loginAttempt = this.loginAttempt + 1;
         }
         else
         {
-            stdio.printf("Logging on.....");
-            login.step = 0;
-            agi.login(login.username, login.password);
+            this.agi.printf("You've struck out");
         }
-
-        stdio.currentLine = "";
-        
-        return;
     }
-    else
-    {
-        stdio.printf(String.fromCharCode(keyCode) );
-        login.password = login.password + String.fromCharCode(keyCode);
-        stdio.currentLine = stdio.currentLine + String.fromCharCode(keyCode);
-    }
-};
 
-login.main = function(args)
-{
-
-    if( args[1] != "undefined" || args[2] != "undefined" || args[3] != "undefined") {
-        console.printf("login:" +  args[1] + " " + args[2] + " " + args[3] + "<br>");
-        agi.login(args[1], args[2], args[3]);
-    }
-    else
-        console.printf(login.form + "<br>");
+    input(keyCode) {
+        if(keyCode == 13)
+        {
+            this.agi.stdio.buffer = stdio.buffer + "<br>";
+            
+            if(this.step === 0)
+            {
+                this.username = stdio.currentLine;
+                this.step++;        }
+            else if(this.step == 1)
+            {
+                this.agi.printf("Password: ");
+                this.step++;
+            }
+            else
+            {
+                this.agi.printf("Logging on.....");
+                this.step = 0;
+                agi.login(login.username, login.password);
+            }
     
-};
-
-login.call = function(user,pass) {
-    //agi.mount(0,"xmppfs", "/dev/message",user, pass,0); 
-    console.printf("login.call()");
-    console.printf(agi.login("#xmpp:softsurve.com:5280", user, pass));
+            this.agi.stdio.currentLine = "";
+            
+            return;
+        }
+        else
+        {
+            this.agi.printf(String.fromCharCode(keyCode) );
+            this.password = login.password + String.fromCharCode(keyCode);
+            this.agi.stdio.currentLine = stdio.currentLine + String.fromCharCode(keyCode);
+        }
+    }
+    
+    main(args)
+    {
+        if( args[1] != "undefined" || args[2] != "undefined" || args[3] != "undefined") {
+            this.agi.printf("login:" +  args[1] + " " + args[2] + " " + args[3] + "<br>");
+            agi.login(args[1], args[2], args[3]);
+        }
+        else
+            this.agi.printf(login.form + "<br>");
+        
+    }
+    
+    call(user,pass) {
+        //agi.mount(0,"xmppfs", "/dev/message",user, pass,0); 
+        this.agi.printf("login.call()");
+        this.agi.printf(agi.login("#xmpp:softsurve.com:5280", user, pass));
+    }
 }
 
-login.exec = login.main;
-
 export default login;
-

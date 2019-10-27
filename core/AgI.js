@@ -6,9 +6,9 @@ import Stdio        from "/core/Stdio.js";
 class AgI extends FileSystem {
     constructor() {
         super();
+        this.stdio = new Stdio("cmd");
+        this.root = new FileNode("/", Types.FileTypes.Directory);
 
-        this.Stdio = new Stdio("cmd");
-        this.root = new FileNode("/", Types.FileTypes.Directory);   
     }
 
     Login(channel, username, password) {  
@@ -23,8 +23,10 @@ class AgI extends FileSystem {
         }
     }
 
-    Error(error) {
+    Error(error) {}
 
+    Flush() {
+        this.stdio.clearIO();
     }
 
     KeyDown(keyCode) {
@@ -62,13 +64,14 @@ class AgI extends FileSystem {
        }
     }
 
-    Printf(char)
+    Printf(line)
     {
-        this.Stdio.printf(char);
+        this.stdio.Printf(line);
     }
 
     Shutdown() {
         return 0;
     }
 }
+
 export default AgI;
