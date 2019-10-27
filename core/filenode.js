@@ -1,4 +1,6 @@
-import Types from "./Types.js";
+'use strict';
+
+var Types = require("./types.js")
 
 class FileNode {
     constructor(name, nodeType) {
@@ -208,4 +210,4 @@ class FileNode {
         return 0;
     }
 }
-export default FileNode;
+exports.FileNode = FileNode;

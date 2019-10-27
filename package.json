@@ -1,25 +1,15 @@
 {
-  "name": "silver-iodide",
-  "version": "1.0.0",
-  "dependencies": {
-    "http-server": "^0.11.1",
-    "npm-cli-login": "^0.1.1"
-  },
+  "name": "agi",
+  "version": "1.0.31",
   "description": "Silver Iodine software framework based on a filesystem like state engine.",
-  "main": "main.js",
+  "main": "index.js",
   "bin": {},
   "directories": {
     "lib": "lib",
     "test": "test"
   },
   "scripts": {
-    "install-electron": "npm install --save-dev electron",
-    "start-electron": "electron .",
-    "start-devserver": "http-server . -p 9090",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test-api": "node test/api/index.js"
   },
   "repository": {
     "type": "git",

@@ -1,3 +1,5 @@
+'use strict';
+
 const FileTypes = {
     Directory : 1,
     Text : 2,
@@ -35,4 +37,8 @@ const ChannelStatus = {
     CONNECTED : 2
 };
 
-export default {FileTypes, Errors, ReadFlags, WriteFlags, ChannelStatus}
+module.exports.FileTypes = FileTypes;
+module.exports.Errors = Errors;
+module.exports.ReadFlags = ReadFlags;
+module.exports.WriteFlags = WriteFlags;
+module.exports.ChannelStatus = ChannelStatus;

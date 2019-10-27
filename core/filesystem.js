@@ -1,5 +1,7 @@
-import Types from "./Types.js";
-import FileNode from "./FileNode.js";
+'use strict';
+
+var Types = require("./types.js")
+var FileNode = require("./filenode.js")
 
 class FileSystem {
     constructor () {
@@ -11,10 +13,10 @@ class FileSystem {
         this.vfsList = [];
         this.channelList = [];
 
-        this.root= new FileNode("/", Types.FileTypes.Directory);
+        this.root= new FileNode.FileNode("/", Types.FileTypes.Directory);
         this.init = function()
         {
-            //this.root = new FileNode("/", Types.FileTypes.Directory);
+            this.root = new FileNode.FileNode("/", Types.FileTypes.Directory);
             return this.root;
         }
     }
@@ -599,4 +601,4 @@ class FileSystem {
     }
     
 }
-export default FileSystem;
+exports.FileSystem = FileSystem;

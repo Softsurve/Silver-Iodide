@@ -1,9 +1,13 @@
+'use strict';
+
+function init(){
+    return new Stdio();
+}
 
 class Stdio {
     constructor(divId) {
         this.buffer = "";
         this.currentLine = "";
-        this.consoleDiv = document.getElementById(divId);
     }
 
     ClearIO() {
@@ -12,10 +16,6 @@ class Stdio {
 
     Printf(string) {
         this.buffer = this.buffer + string;
-            
-        if(this.consoleDiv !== 0) {
-            this.consoleDiv.innerHTML = this.buffer;
-        }
     }
 
     redraw() {
@@ -26,4 +26,4 @@ class Stdio {
     }
 }
 
-export default Stdio;
+exports.Stdio = Stdio;

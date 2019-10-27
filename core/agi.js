@@ -1,14 +1,21 @@
-import Types        from "/core/Types.js";
-import FileSystem   from "/core/FileSystem.js";
-import FileNode     from "/core/FileNode.js";
-import Stdio        from "/core/Stdio.js";
+'use strict';
 
-class AgI extends FileSystem {
-    constructor() {
+var Types = require("./types.js")
+var FileSystem = require("./filesystem.js")
+var FileNode = require("./filenode.js")
+var Stdio = require("./stdio.js")
+
+exports = module.exports = init;
+
+function init() {
+    return new agi();
+}
+
+class agi extends FileSystem.FileSystem {
+    constructor () {
         super();
-        this.stdio = new Stdio("cmd");
-        this.root = new FileNode("/", Types.FileTypes.Directory);
-
+        this.stdio = new Stdio.Stdio("cmd");
+        this.root = new FileNode.FileNode("/", Types.FileTypes.Directory);
     }
 
     Login(channel, username, password) {  
@@ -22,23 +29,19 @@ class AgI extends FileSystem {
                 return null;
         }
     }
-
+    
     Error(error) {}
-
+    
     Flush() {
         this.stdio.clearIO();
     }
-
-    KeyDown(keyCode) {
-        this.Stdio.input(keyCode);
-    }
-
+    
     Mount(mode, fileSystem, mountPoint, args) {
         var workPath = "/";
         var aNode;
         var pathArray = mountPoint.split('/');
         var counter = 0;
-
+    
         while (counter <= pathArray.length - 2)
         {
             if (workPath === "/")
@@ -47,31 +50,26 @@ class AgI extends FileSystem {
                 workPath = workPath + '/' + pathArray[counter];
             counter++;
         }
-
+    
         aNode = this.walk(workPath);
-
+    
         if (aNode !== null && aNode.GetType() === Types.FileTypes.Directory )
         {           
             aNode.AddChild(new fileSystem());
-
+    
             this.touched(aNode);
-
+    
             return;
-       }
-       else {
-           this.Error("Mount failed");
-           return null;
-       }
+        }
+        else {
+            this.Error("Mount failed");
+            return null;
+        }
     }
 
-    Printf(line)
-    {
+    Printf(line) {
         this.stdio.Printf(line);
-    }
-
-    Shutdown() {
-        return 0;
     }
 }
 
-export default AgI;
+exports.agi = {};
