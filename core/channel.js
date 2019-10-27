@@ -24,4 +24,4 @@ class Channel {
     }
 }
 
-export default Channel;
+exports.Channel = Channel;

@@ -10,3 +10,5 @@ class Command {
     {
     }
 }
+
+exports.Command = Command;
