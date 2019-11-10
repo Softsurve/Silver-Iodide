@@ -1,4 +1,6 @@
 
+'use strict';
+
 class Channel {
     constructor (url, user, pass) {
         this.status;

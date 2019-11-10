@@ -11,6 +11,7 @@ class FileNode {
         this.Type = nodeType;
         this.watchers = [];
         this.Data = null;
+        this.children = [];
         this.dirList = [];
         this.mounted = null;
         this.symNode = null;
@@ -21,16 +22,8 @@ class FileNode {
     {
         if (this.Type === Types.FileTypes.Directory)
         {
-            if(this.dirList.length === 0)
-                this.dirList = [newDir]
-            else {
-                var prev = this.dirList[this.dirList.length-1];
-                this.dirList = this.dirList.concat(newDir);
-                var newItem = this.dirList[this.dirList.length-1]; 
-                prev.next = newItem;
-                newItem.prev = prev;
-            }
-            return 0;
+            this.children.push(newDir);
+            this.dirList.push(newDir);
         }
         else
             return -1;
@@ -52,6 +45,16 @@ class FileNode {
     {
         if (this.dirList != null)
             return this.dirList.Count;
+        else
+            return -1;
+    }
+
+    GetChildren()
+    {
+        if (this.Type === Types.FileTypes.Directory)
+        {
+            return this.children;
+        }
         else
             return -1;
     }
@@ -208,6 +211,12 @@ class FileNode {
     {
         this.Type = type;
         return 0;
+    }
+
+    ToJson(){
+        var json = "{\"agiFile\": {\"name\":"+ this.Name + "\"meta\""+this.meta + "\"type\""+this.Type + "\"data\""+this.Data + "}";
+        //console.log(this);
+        return json;
     }
 }
 exports.FileNode = FileNode;

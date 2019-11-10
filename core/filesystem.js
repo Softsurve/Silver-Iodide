@@ -1,7 +1,10 @@
 'use strict';
 
-var Types = require("./types.js")
-var FileNode = require("./filenode.js")
+var path = require("./path.js");
+var Types = require("./types.js");
+var FileNode = require("./filenode.js");
+
+var Path = new path.Path();
 
 class FileSystem {
     constructor () {
@@ -14,19 +17,18 @@ class FileSystem {
         this.channelList = [];
 
         this.root= new FileNode.FileNode("/", Types.FileTypes.Directory);
-        this.init = function()
-        {
-            this.root = new FileNode.FileNode("/", Types.FileTypes.Directory);
-            return this.root;
-        }
     }
 
-    read(path, flags, offset, length) {
+    Read(path, flags, offset, length) {
         var loadPath;
         var readNode;
-        readNode = this.walk(path);
 
-        if (readNode !== null && readNode.GetType() === Types.FileTypes.Mount)
+        readNode = this.walk(path, this.root);
+
+        if(readNode === Types.ReadErrors.FILENOTFOUND || Types.ReadErrors.INVALIDPATH)
+            return readNode;
+
+        else if (readNode !== null && readNode.GetType() === Types.FileTypes.Mount)
         {
             loadPath = this.parsePath(readNode, path);
 
@@ -34,32 +36,6 @@ class FileSystem {
         }
         else
             return readNode;
-    }
-
-    parsePath (mNode, loadPath)
-    {
-        var mPath = "";
-        var counter = 0;
-
-        var pathArray = loadPath.split('/');
-
-        while (pathArray[counter] !== mNode.GetName() && counter < pathArray.length)
-        {
-            counter++;
-        }
-
-        //skip the mount point's name
-        counter++;
-
-        while (counter < pathArray.length)
-        {
-            mPath = mPath + "/" + pathArray[counter];
-            counter++;
-        }
-        if (mPath !== null)
-            return mPath;
-        else
-            return ("/");
     }
 
     touched(node) {
@@ -80,47 +56,6 @@ class FileSystem {
         return this;
     }
 
-    getWorkPath(path) {
-        var workPath = "/";
-        var counter = 0;
-        var pathArray = path.split('/');
-
-        while (counter <= pathArray.length - 2)
-        {
-            if (workPath === "/")
-                workPath = workPath + pathArray[counter];
-            else
-                workPath = workPath + '/' + pathArray[counter];
-            counter++;
-        }
-
-        return workPath;
-    }
-
-    getWorkPathArray(path)
-    {
-        var workPath = "/";
-        var counter = 0;
-        var pathArray = path.split('/');
-
-        while (counter <= pathArray.length - 2)
-        {
-            if (workPath === "/")
-                workPath = workPath + pathArray[counter];
-            else
-                workPath = workPath + '/' + pathArray[counter];
-            counter++;
-        }
-
-        return pathArray;
-    }
-    
-    getNewfileName(path)
-    {        
-        var pathArray = path.sasl_digest_md5plit('/');
-        return pathArray[pathArray.length - 1];
-    }
-
     Delete(path){
         var aNode;
         var buffer;
@@ -133,7 +68,7 @@ class FileSystem {
         var nextNode;
     
         counter = 0;
-        aNode = this.walk(path);
+        aNode = this.walk(path, this.root);
 
         if(aNode === null)
             return -1;
@@ -175,7 +110,38 @@ class FileSystem {
         return 0;
     }
 
-    write(path, flags, buffer, offset, length)
+    Mount(fileSystem, mountPoint, args) {
+        var workPath = "/";
+        var aNode;
+        var pathArray = mountPoint.split('/');
+        var counter = 0;
+    
+        while (counter <= pathArray.length - 2)
+        {
+            if (workPath === "/")
+                workPath = workPath + pathArray[counter];
+            else
+                workPath = workPath + '/' + pathArray[counter];
+            counter++;
+        }
+    
+        aNode = this.walk(workPath, this.root);
+    
+        if (aNode !== null && aNode.GetType() === Types.FileTypes.Directory )
+        {           
+            aNode.AddChild(new fileSystem());
+    
+            this.touched(aNode);
+    
+            return;
+        }
+        else {
+            this.Error("Mount failed");
+            return null;
+        }
+    }
+
+    Write(path, flags, buffer, offset, length)
     {
         var workPath = "/";
         var aNode;
@@ -197,27 +163,16 @@ class FileSystem {
 
         if (flags === Types.WriteFlags.CREATEDIR)
         {
-            aNode = this.walk(workPath);
+            aNode = this.walk(workPath, this.root);
 
-            if(aNode === null) {
+            if(aNode === Types.ReadErrors.FILENOTFOUND || aNode === Types.ReadErrors.INVALIDPATH )
                 return -1;
-            }
-            
-            if ( aNode.GetType() === 1 && buffer === "1")
+
+            if ( aNode.GetType() === Types.FileTypes.Directory )
             {
-                newDir =  new FileNode(pathArray[pathArray.length - 1], Types.FileTypes.Directory);
+                newDir=new FileNode.FileNode(pathArray[pathArray.length - 1], Types.FileTypes.Directory);
                 newDir.AddParent(aNode);
                 aNode.AddChild(newDir);
-
-                if (aNode.CountChildren() > 0)
-                {
-                    newDir.SetPrev(aNode.GetDirList().ElementAt(aNode.CountChildren()-1));
-                }
-
-                if (aNode.CountChildren() >= 2)
-                {
-                    aNode.GetDirList()[aNode.CountChildren() - 2].SetNext(newDir);
-                }
 
                 this.touched(aNode);
                 return 0;
@@ -250,7 +205,7 @@ class FileSystem {
         }
         else if (flags === Types.WriteFlags.CREATEDATAFILE)
         {
-            aNode = this.walk(workPath);
+            aNode = this.walk(workPath, this.root);
             
             if (aNode.GetType() === 1)
             {
@@ -270,7 +225,7 @@ class FileSystem {
                     }
                 }
 
-                var newFile = new FileNode(pathArray[pathArray.length - 1], Types.FileTypes.Text);
+                var newFile = new FileNode.FileNode(pathArray[pathArray.length - 1], Types.FileTypes.Text);
 
                 newFile.AddParent(aNode);
                 aNode.AddChild(newFile);
@@ -314,8 +269,8 @@ class FileSystem {
 
         else if (flags === 3)
         {
-            aNode = this.walk(workPath);
-            var bNode = this.walk(buffer);
+            aNode = this.walk(workPath, this.root);
+            var bNode = this.walk(buffer, this.root);
 
             if (bNode.GetType() === Types.FileTypes.Directory || bNode.GetType() === Types.FileTypes.Mount)
             {
@@ -421,7 +376,7 @@ class FileSystem {
         }
         else if (flags === Types.FileTypes.Symlink)
         {
-            aNode = this.walk(workPath);
+            aNode = this.walk(workPath, this.root);
 
             if (aNode.GetType() === Types.FileTypes.Directory)
             {
@@ -449,7 +404,7 @@ class FileSystem {
         }
         else if (flags === 5)
         {
-            aNode = this.walk(workPath);
+            aNode = this.walk(workPath, this.root);
             
             if(aNode === null)
                 return -1;
@@ -473,9 +428,9 @@ class FileSystem {
         }
         else if (flags === Types.FileTypes.Mount)
         {
-            if (this.walk(path) !== null)
+            if (this.walk(path, this.root) !== null)
             {
-                aNode = this.walk(path);
+                aNode = this.walk(path, this.root);
 
                 if (aNode.GetType() === 5)
                 {
@@ -498,100 +453,44 @@ class FileSystem {
             return -10;
     }
 
-    walk(path) {
-        var startNode = this.root;
-        var aNode = null;
-        if (path === null || path === "" || path.length < 1)
-            return null;
-        
+    walk(path, node) {
+        if (path === null || path === "" || path.length < 1 || node === null || node === undefined || path[0] !== '/')
+            return Types.ReadErrors.INVALIDPATH;
+
         if (path.length === 1 && path[0] === '/')
-        {         
-            return startNode;
+            return node;
+
+        var pathArray = path.split('/');
+        var pathOffset = 1;
+        var fileName = Path.GetFileNameFromPath(path);
+        var n = node.GetChildren();
+        var i = 0;
+
+        while(pathOffset < pathArray.length && n.length > 0 && i < n.length){
+            if(n[i].GetName() === fileName && pathOffset === pathArray.length - 1){
+                    return n[i];                    
+            }
+            else if(n[i].GetName() === pathArray[pathOffset]  && n[i].GetType() === Types.FileTypes.Directory) {
+                n = n[i].GetChildren();
+                pathOffset++;
+            }            
+            else {
+                i++;
+            }
         }
 
-        if (path[0] !== '/')
-        {
-            path = '/' + path;
-        }
-        
-        var nodeArray = path.split('/');
-
-        if (startNode.GetDirList().length !== 0)
-            aNode = startNode.GetDirList()[0];
-
-        var depth = 1;
- 
-        while (aNode !== null && aNode.GetName() !== nodeArray[nodeArray.length - 1] && depth <= nodeArray.length)
-        {
-            while (aNode.GetName() !== nodeArray[depth] && depth <= nodeArray.length)
-            {
-                if (aNode.GetNext() !== null)
-                {
-                    aNode = aNode.GetNext();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            if (aNode.GetName() !== nodeArray[nodeArray.length - 1] && aNode.GetType() !== 5 && aNode.GetType() !== 6)
-            {
-                aNode = aNode.GetDirList()[0];
-                depth++;
-            }
-
-            if (aNode !== null && aNode.GetName() === nodeArray[nodeArray.length - 1] && depth < nodeArray.length - 1)
-            {
-                var znode = 0;
-                while (aNode.GetDirEntry(znode).GetName() !== nodeArray[depth + 1] && depth <= nodeArray.length)
-                {
-                    if (aNode.GetDirEntry(znode).GetNext() !== null)
-                        znode++;
-                    else
-                        return null;
-                }
-                if (aNode.GetDirEntry(znode).GetName() === nodeArray[depth + 1])
-                {
-                    depth++;
-                    aNode = aNode.GetDirEntry(znode);
-                }
-                else
-                    return null;
-            }
-
-	    switch(aNode !== null) {
-            case aNode.GetType() === 5:
-               	if (aNode.GetName() === nodeArray[depth])
-                    return (aNode);
-                else
-                    break;
-			case aNode.GetType() === 4:
-                if (aNode.GetName() === nodeArray[depth])
-                	return (aNode);
-                else
-                    return null;
-           	case aNode.GetType() === 6:
-                if (aNode.GetName() === nodeArray[depth])
-                   	return (aNode);
-                else
-                    return null;
-            default:
-			    break;
-	    }
-        }
-        return aNode;
+        return Types.ReadErrors.FILENOTFOUND;
     }
 
     watch(path, caller, callback)
     {
-        var aNode = this.walk(path);
+        var aNode = this.walk(path, this.root);
         return aNode.AddWatcher(callback);
     }
 
     unwatch(callback, path, watcher)
     {
-        var aNode = this.walk(path);
+        var aNode = this.walk(path, this.root);
         return aNode.removeWatcher(callback, watcher);
     }
 

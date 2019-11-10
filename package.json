@@ -1,6 +1,6 @@
 {
   "name": "agi",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "Silver Iodine software framework based on a filesystem like state engine.",
   "main": "index.js",
   "bin": {},
@@ -9,7 +9,9 @@
     "test": "test"
   },
   "scripts": {
-    "test-api": "node test/api/index.js"
+    "agid-node": "node examples/agid-nodejs/main.js",
+    "test-api": "node test/api/index.js",
+    "test:rootfs:walk": "node test/rootfs/walk.js"
   },
   "repository": {
     "type": "git",

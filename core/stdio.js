@@ -1,9 +1,5 @@
 'use strict';
 
-function init(){
-    return new Stdio();
-}
-
 class Stdio {
     constructor(divId) {
         this.buffer = "";
