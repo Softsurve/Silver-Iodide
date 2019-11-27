@@ -16,6 +16,7 @@
     "install-electron": "npm install --save-dev electron",
     "start-electron": "electron .",
     "start-devserver": "http-server . -p 9090",
+    "lint": "echo 'no linting yet'",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

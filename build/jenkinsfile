@@ -1,0 +1,51 @@
+def major = 1
+def minor = 1
+
+pipeline {
+    agent any
+    stages {
+        stage('Log Build Details to Slack') {
+            steps {
+                echo "AGI CORE test build ${major}.${minor}.${BUILD_NUMBER}"
+            }
+        }
+        stage('Pull NPM Dependancies') {
+            steps {
+                sh 'npm i'
+            }
+        }
+        stage('Build package') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+        stage('Run Code QA Test') {
+            steps {
+                sh 'npm run lint'
+                sh 'npm run test'
+            }
+        }
+        stage('Update package.json version number') {
+            steps {
+                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
+                
+            }
+        }
+        stage('Push new npm package to Nexus') {
+            steps {
+                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
+            }
+        }
+        stage('Tag code with new version') {
+            steps {
+                sh "git tag ${major}.${minor}.${BUILD_NUMBER}"
+                sh "git push"
+            }
+        }
+        stage('Post build status to slack') {
+            steps {
+                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
+            }
+        }
+    }
+}
