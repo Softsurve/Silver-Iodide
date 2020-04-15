@@ -1,50 +1,93 @@
-def major = 1
-def minor = 1
-
 pipeline {
     agent any
+    environment {
+    		MAJOR = "1"
+    		MINOR = '0'
+            REPO = 'https://github.com/Softsurve/silver-iodide.git'
+    }
     stages {
-        stage('Log Build Details to Slack') {
+        stage('Starting Build') {
             steps {
-                echo "AGI CORE test build ${major}.${minor}.${BUILD_NUMBER}"
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        slackSend color: 'good', message: "Starting build: ${REPO} ${MAJOR}.${MINOR}.${BUILD_NUMBER}"
+                        currentBuild.displayName = "${MAJOR}.${MINOR}.${BUILD_NUMBER} - User: ${BUILD_USER_ID}"
+                        currentBuild.description = "Autobuild"
+                    }
+                }
+            }
+        }
+        stage('Pulling Project Source') {
+            steps {
+                script {
+                    sh 'git config --global credential.helper cache'
+                    sh 'git config --global push.default simple'
+                    sh 'git config --global user.email "jbot@softsurve.com"'
+                    sh 'git config --global user.name "Jenkins Robot"'
+
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: 'master']],
+                        extensions: [
+                        [$class: 'CloneOption', noTags: true, reference: '', shallow: true]
+                        ],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [
+                            [ credentialsId: 'github_simple', url: REPO]
+                        ]
+                    ])
+                }
+            }
+        }
+       stage('Update package.json version number') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node 13.2.0', configId: '66f2f02e-cf39-4511-af8b-fc0084d7d9ed') {
+                    sh "npm version ${MAJOR}.${MINOR}.${BUILD_NUMBER}"
+                }
             }
         }
         stage('Pull NPM Dependancies') {
             steps {
-                sh 'npm i'
+                nodejs(nodeJSInstallationName: 'node 13.2.0', configId: '66f2f02e-cf39-4511-af8b-fc0084d7d9ed') {
+                    sh 'npm i'
+                }
             }
         }
         stage('Build package') {
             steps {
-                sh 'npm run build'
+                nodejs(nodeJSInstallationName: 'node 13.2.0', configId: '66f2f02e-cf39-4511-af8b-fc0084d7d9ed') {
+                    echo 'run build'
+                    //sh 'npm run build'
+                }
             }
         }
         stage('Run Code QA Test') {
             steps {
-                sh 'npm run lint'
-                sh 'npm run test'
-            }
-        }
-        stage('Update package.json version number') {
-            steps {
-                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
-                
+                nodejs(nodeJSInstallationName: 'node 13.2.0', configId: '66f2f02e-cf39-4511-af8b-fc0084d7d9ed') {
+                    echo 'run build'
+                    //sh 'npm run lint'
+                    //sh 'npm run test'
+                }
             }
         }
         stage('Push new npm package to Nexus') {
             steps {
-                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
+                nodejs(nodeJSInstallationName: 'node 13.2.0', configId: '66f2f02e-cf39-4511-af8b-fc0084d7d9ed') {
+                    sh "npm publish"
+                }
             }
         }
         stage('Tag code with new version') {
             steps {
-                sh "git tag ${major}.${minor}.${BUILD_NUMBER}"
-                sh "git push"
+                dir('project_source'){
+                    sh 'git tag build-${MAJOR}.${MINOR}.${BUILD_NUMBER}'
+                    sh 'git push origin build-${MAJOR}.${MINOR}.${BUILD_NUMBER}'
+                }
             }
         }
         stage('Post build status to slack') {
             steps {
-                sh "new version ${major}.${minor}.${BUILD_NUMBER}"
+                slackSend color: 'good', message: "Build Complete ${REPO} build-${MAJOR}.${MINOR}.${BUILD_NUMBER}"
             }
         }
     }

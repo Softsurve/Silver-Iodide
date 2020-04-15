@@ -6,8 +6,7 @@
   },
   "description": "Silver Iodine software framework based on a filesystem like state engine.",
   "main": "main.js",
-  "bin": {
-  },
+  "bin": {},
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -32,10 +31,9 @@
     "url": "https://github.com/softsurve/silver-iodine/issues"
   },
   "homepage": "https://facade.softsurve.com",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "publishConfig": {
-    "registry": "https://nexus.softsurve.com/repository/npm/"
+    "registry": "https://nexus.softsurve.com/repository/npm-private/"
   },
   "browserslist": [
     ">0.2%",
