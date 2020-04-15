@@ -35,7 +35,7 @@
   "devDependencies": {
   },
   "publishConfig": {
-    "registry": "https://nexus.softsurve.com/repository/npm/"
+    "registry": "https://nexus.softsurve.com/repository/npm-private/"
   },
   "browserslist": [
     ">0.2%",
